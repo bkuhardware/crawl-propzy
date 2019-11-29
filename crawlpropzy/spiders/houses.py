@@ -27,7 +27,7 @@ class HousesSpider(scrapy.Spider):
 
     def start_requests(self):
         request_url = 'https://propzy.vn/mua/ban-nha-rieng-tphcm'
-        request_urls = map(lambda i: request_url + '/p' + str(i), range(1, 2))
+        request_urls = map(lambda i: request_url + '/p' + str(i), range(1, 200))
         for url in request_urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -42,9 +42,14 @@ class HousesSpider(scrapy.Spider):
         ##title part
         div_title = response.xpath('//html/body/section/div[1]/div/div[2]/div[1]/div/div[1]/div[3]/div[2]')
         price = div_title.xpath('.//span[@class="span-price"]/text()').get()
+        if price:
+            temp = price.split(' ')
+            num_price = float(temp[0].replace(',', '.'))
+            price = num_price * 1000000 if temp[1] == 'tỷ' else num_price * 1000
+
         acreage = div_title.xpath('.//span[@class="span-acreage"]/text()').get()
         if acreage:
-            acreage = acreage.replace('m²', '')
+            acreage = float(acreage.replace('m²', '').replace(',', '.'))
         district = div_title.xpath('.//p[contains(@class, "p-district")]/a[1]/span/text()').get()
         ward = div_title.xpath('.//p[contains(@class, "p-district")]/a[2]/span/text()').get()
 
@@ -52,16 +57,16 @@ class HousesSpider(scrapy.Spider):
         div_info = response.xpath('//html/body/section/div[1]/div/div[2]/div[1]/div/div[1]/div[4]/div')
         length = div_info.xpath('.//span[@class="elements length"]/text()').get()
         if length:
-            length = length.split(':')[1].strip().replace('m', '')
+            length = float(length.split(':')[1].strip().replace('m', '').replace(',', '.'))
         width = div_info.xpath('.//span[@class="elements width"]/text()').get()
         if width:
-            width = width.split(':')[1].strip().replace('m', '')
+            width = float(width.split(':')[1].strip().replace('m', '').replace(',', '.'))
         direction = div_info.xpath('.//span[@class="elements direction"]/text()').get()
         if direction:
             direction = direction.split(':')[1].strip()
         alley = div_info.xpath('.//span[@class="elements alley"]/text()').get()
         if alley:
-            alley = alley.split(':')[1].strip().replace('m', '')
+            alley = float(alley.split(':')[1].strip().replace('m', '').replace(',', '.'))
         floors = div_info.xpath('.//span[@class="elements floors"]/text()').get()
         if floors:
             floors = floors.split(':')[1].strip()
