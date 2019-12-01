@@ -27,7 +27,7 @@ class HousesSpider(scrapy.Spider):
 
     def start_requests(self):
         request_url = 'https://propzy.vn/mua/ban-nha-rieng-tphcm'
-        request_urls = map(lambda i: request_url + '/p' + str(i), range(1, 200))
+        request_urls = map(lambda i: request_url + '/p' + str(i), range(1, 220))
         for url in request_urls:
             yield scrapy.Request(url=url, callback=self.parse)
 
@@ -119,6 +119,7 @@ class HousesSpider(scrapy.Spider):
 
         yield {
             'Price': price,
+            'Type': 'Nhà',
             'Acreage': acreage,
             'District': district,
             'Ward': ward,
